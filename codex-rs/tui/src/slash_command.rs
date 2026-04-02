@@ -27,6 +27,7 @@ pub enum SlashCommand {
     New,
     Resume,
     Fork,
+    Btw,
     Init,
     Compact,
     Plan,
@@ -79,6 +80,7 @@ impl SlashCommand {
             SlashCommand::Resume => "resume a saved chat",
             SlashCommand::Clear => "clear the terminal and start a new chat",
             SlashCommand::Fork => "fork the current chat",
+            SlashCommand::Btw => "open a side conversation while the current thread keeps running",
             // SlashCommand::Undo => "ask Codex to undo a turn",
             SlashCommand::Quit | SlashCommand::Exit => "exit Codex",
             SlashCommand::Diff => "show git diff (including untracked files)",
@@ -161,6 +163,7 @@ impl SlashCommand {
             | SlashCommand::MemoryUpdate => false,
             SlashCommand::Diff
             | SlashCommand::Copy
+            | SlashCommand::Btw
             | SlashCommand::Rename
             | SlashCommand::Mention
             | SlashCommand::Skills
@@ -219,5 +222,10 @@ mod tests {
     #[test]
     fn clean_alias_parses_to_stop_command() {
         assert_eq!(SlashCommand::from_str("clean"), Ok(SlashCommand::Stop));
+    }
+
+    #[test]
+    fn btw_command_parses() {
+        assert_eq!(SlashCommand::from_str("btw"), Ok(SlashCommand::Btw));
     }
 }

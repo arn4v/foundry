@@ -5029,6 +5029,9 @@ impl ChatWidget {
             SlashCommand::Fork => {
                 self.app_event_tx.send(AppEvent::ForkCurrentSession);
             }
+            SlashCommand::Btw => {
+                self.app_event_tx.send(AppEvent::StartBtwSession);
+            }
             SlashCommand::Init => {
                 let init_target = match self.config.cwd.join(DEFAULT_PROJECT_DOC_FILENAME) {
                     Ok(path) => path,

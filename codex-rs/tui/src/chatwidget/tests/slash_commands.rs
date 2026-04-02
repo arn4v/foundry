@@ -432,6 +432,16 @@ async fn slash_resume_opens_picker() {
 }
 
 #[tokio::test]
+async fn slash_btw_starts_side_session_while_task_running() {
+    let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
+    chat.on_task_started();
+
+    chat.dispatch_command(SlashCommand::Btw);
+
+    assert_matches!(rx.try_recv(), Ok(AppEvent::StartBtwSession));
+}
+
+#[tokio::test]
 async fn slash_fork_requests_current_fork() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
 

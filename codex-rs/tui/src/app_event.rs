@@ -108,6 +108,9 @@ pub(crate) enum AppEvent {
     /// Fork the current session into a new thread.
     ForkCurrentSession,
 
+    /// Start a side conversation and switch focus to it without stopping the current thread.
+    StartBtwSession,
+
     /// Request to exit the application.
     ///
     /// Use `ShutdownFirst` for user-initiated quits so core cleanup runs and the

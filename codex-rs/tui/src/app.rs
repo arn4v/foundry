@@ -3197,6 +3197,90 @@ impl App {
         self.sync_active_agent_label();
     }
 
+    async fn spawn_btw_thread(
+        &mut self,
+        app_server: &mut AppServerSession,
+    ) -> Result<(ThreadId, String)> {
+        if self.primary_thread_id.is_none() || self.current_displayed_thread_id().is_none() {
+            return Err(color_eyre::eyre::eyre!(
+                "Wait for the current thread to finish loading before starting /btw."
+            ));
+        }
+
+        self.refresh_in_memory_config_from_disk_best_effort("starting a BTW thread")
+            .await;
+        let config = self.fresh_session_config();
+        let next_btw_index = self
+            .agent_navigation
+            .ordered_threads()
+            .iter()
+            .filter_map(|(_, entry)| {
+                entry.agent_nickname.as_deref().and_then(|nickname| {
+                    if nickname == "BTW" {
+                        Some(1)
+                    } else {
+                        nickname
+                            .strip_prefix("BTW ")
+                            .and_then(|suffix| suffix.parse::<u32>().ok())
+                    }
+                })
+            })
+            .max()
+            .unwrap_or(0)
+            + 1;
+        let label = if next_btw_index == 1 {
+            "BTW".to_string()
+        } else {
+            format!("BTW {next_btw_index}")
+        };
+
+        let mut started = app_server
+            .start_thread(&config)
+            .await
+            .wrap_err("Failed to start a BTW thread through the app server")?;
+        let thread_id = started.session.thread_id;
+        started.session.thread_name = Some(label.clone());
+        if let Err(err) = app_server.thread_set_name(thread_id, label.clone()).await {
+            tracing::warn!(
+                thread_id = %thread_id,
+                error = %err,
+                "failed to persist BTW thread name"
+            );
+        }
+
+        self.upsert_agent_picker_thread(
+            thread_id,
+            Some(label.clone()),
+            /*agent_role*/ None,
+            /*is_closed*/ false,
+        );
+        let channel = self.ensure_thread_channel(thread_id);
+        let mut store = channel.store.lock().await;
+        store.set_session(started.session, started.turns);
+        drop(store);
+
+        Ok((thread_id, label))
+    }
+
+    async fn start_btw_session(&mut self, tui: &mut tui::Tui, app_server: &mut AppServerSession) {
+        match self.spawn_btw_thread(app_server).await {
+            Ok((thread_id, label)) => {
+                if let Err(err) = self.select_agent_thread(tui, app_server, thread_id).await {
+                    self.chat_widget
+                        .add_error_message(format!("Failed to switch to {label}: {err}"));
+                } else {
+                    self.chat_widget.add_info_message(
+                        format!("Opened {label}. Previous thread keeps running in the background."),
+                        Some("Use /agent or Alt+Left/Alt+Right to switch threads.".to_string()),
+                    );
+                }
+            }
+            Err(err) => self.chat_widget.add_error_message(err.to_string()),
+        }
+
+        tui.frame_requester().schedule_frame();
+    }
+
     async fn start_fresh_session_with_summary_hint(
         &mut self,
         tui: &mut tui::Tui,
@@ -3955,6 +4039,9 @@ impl App {
 
                 self.start_fresh_session_with_summary_hint(tui, app_server)
                     .await;
+            }
+            AppEvent::StartBtwSession => {
+                self.start_btw_session(tui, app_server).await;
             }
             AppEvent::OpenResumePicker => {
                 let picker_app_server = match crate::start_app_server_for_picker(
@@ -10666,6 +10753,91 @@ guardian_approval = true
             op_rx.try_recv().is_err(),
             "shutdown should not submit Op::Shutdown"
         );
+    }
+
+    #[tokio::test]
+    async fn spawn_btw_thread_keeps_main_thread_loaded() -> Result<()> {
+        let mut app = make_test_app().await;
+        let mut app_server =
+            crate::start_embedded_app_server_for_picker(app.chat_widget.config_ref())
+                .await
+                .expect("embedded app server");
+
+        let started = app_server
+            .start_thread(app.chat_widget.config_ref())
+            .await?;
+        let main_thread_id = started.session.thread_id;
+        app.enqueue_primary_thread_session(started.session, started.turns)
+            .await?;
+
+        let (btw_thread_id, label) = app.spawn_btw_thread(&mut app_server).await?;
+
+        assert_eq!(label, "BTW");
+        assert_eq!(app.active_thread_id, Some(main_thread_id));
+        assert_ne!(btw_thread_id, main_thread_id);
+        assert_eq!(app.primary_thread_id, Some(main_thread_id));
+        assert_eq!(app.chat_widget.thread_id(), Some(main_thread_id));
+        assert!(app.thread_event_channels.contains_key(&main_thread_id));
+        assert!(app.thread_event_channels.contains_key(&btw_thread_id));
+        assert_eq!(
+            app.agent_navigation.get(&btw_thread_id),
+            Some(&AgentPickerThreadEntry {
+                agent_nickname: Some("BTW".to_string()),
+                agent_role: None,
+                is_closed: false,
+            })
+        );
+
+        let main_store = app
+            .thread_event_channels
+            .get(&main_thread_id)
+            .expect("main thread channel")
+            .store
+            .lock()
+            .await;
+        assert!(main_store.active);
+        drop(main_store);
+
+        let btw_store = app
+            .thread_event_channels
+            .get(&btw_thread_id)
+            .expect("BTW thread channel")
+            .store
+            .lock()
+            .await;
+        assert!(!btw_store.active);
+        assert_eq!(
+            btw_store
+                .session
+                .as_ref()
+                .and_then(|session| session.thread_name.clone()),
+            Some("BTW".to_string())
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn spawn_btw_thread_increments_labels() -> Result<()> {
+        let mut app = make_test_app().await;
+        let mut app_server =
+            crate::start_embedded_app_server_for_picker(app.chat_widget.config_ref())
+                .await
+                .expect("embedded app server");
+
+        let started = app_server
+            .start_thread(app.chat_widget.config_ref())
+            .await?;
+        app.enqueue_primary_thread_session(started.session, started.turns)
+            .await?;
+
+        let (_, first_label) = app.spawn_btw_thread(&mut app_server).await?;
+        let (_, second_label) = app.spawn_btw_thread(&mut app_server).await?;
+
+        assert_eq!(first_label, "BTW");
+        assert_eq!(second_label, "BTW 2");
+
+        Ok(())
     }
 
     #[tokio::test]
