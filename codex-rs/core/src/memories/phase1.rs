@@ -228,7 +228,7 @@ async fn build_request_context(session: &Arc<Session>, config: &Config) -> Reque
     let model = session
         .services
         .models_manager
-        .get_model_info(&model_name, config)
+        .get_model_info(&model_name, &config.to_models_manager_config())
         .await;
     let turn_context = session.new_default_turn().await;
     RequestContext::from_turn_context(

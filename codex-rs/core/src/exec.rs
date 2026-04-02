@@ -34,6 +34,8 @@ use crate::spawn::spawn_child_async;
 use crate::text_encoding::bytes_to_string_smart;
 use codex_network_proxy::NetworkProxy;
 use codex_protocol::config_types::WindowsSandboxLevel;
+use codex_protocol::exec_output::ExecToolCallOutput;
+use codex_protocol::exec_output::StreamOutput;
 use codex_protocol::permissions::FileSystemSandboxKind;
 use codex_protocol::permissions::FileSystemSandboxPolicy;
 use codex_protocol::permissions::NetworkSandboxPolicy;
@@ -713,12 +715,6 @@ pub(crate) fn is_likely_sandbox_denied(
     false
 }
 
-#[derive(Debug, Clone)]
-pub struct StreamOutput<T: Clone> {
-    pub text: T,
-    pub truncated_after_lines: Option<u32>,
-}
-
 #[derive(Debug)]
 struct RawExecToolCallOutput {
     pub exit_status: ExitStatus,
@@ -726,15 +722,6 @@ struct RawExecToolCallOutput {
     pub stderr: StreamOutput<Vec<u8>>,
     pub aggregated_output: StreamOutput<Vec<u8>>,
     pub timed_out: bool,
-}
-
-impl StreamOutput<String> {
-    pub fn new(text: String) -> Self {
-        Self {
-            text,
-            truncated_after_lines: None,
-        }
-    }
 }
 
 impl StreamOutput<Vec<u8>> {
@@ -797,29 +784,6 @@ fn aggregate_output(
     StreamOutput {
         text: aggregated,
         truncated_after_lines: None,
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct ExecToolCallOutput {
-    pub exit_code: i32,
-    pub stdout: StreamOutput<String>,
-    pub stderr: StreamOutput<String>,
-    pub aggregated_output: StreamOutput<String>,
-    pub duration: Duration,
-    pub timed_out: bool,
-}
-
-impl Default for ExecToolCallOutput {
-    fn default() -> Self {
-        Self {
-            exit_code: 0,
-            stdout: StreamOutput::new(String::new()),
-            stderr: StreamOutput::new(String::new()),
-            aggregated_output: StreamOutput::new(String::new()),
-            duration: Duration::ZERO,
-            timed_out: false,
-        }
     }
 }
 

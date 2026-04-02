@@ -7,19 +7,7 @@ use codex_protocol::approvals::NetworkApprovalContext;
 use codex_protocol::approvals::NetworkApprovalProtocol;
 use codex_protocol::approvals::NetworkPolicyAmendment;
 use codex_protocol::approvals::NetworkPolicyRuleAction;
-use serde::Deserialize;
-
-#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
-pub struct NetworkPolicyDecisionPayload {
-    pub decision: NetworkPolicyDecision,
-    pub source: NetworkDecisionSource,
-    #[serde(default)]
-    pub protocol: Option<NetworkApprovalProtocol>,
-    pub host: Option<String>,
-    pub reason: Option<String>,
-    pub port: Option<u16>,
-}
+use codex_protocol::network_policy::NetworkPolicyDecisionPayload;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExecPolicyNetworkRuleAmendment {

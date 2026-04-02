@@ -3,6 +3,7 @@ use crate::models_manager::manager::ModelsManager;
 use crate::models_manager::model_info::with_config_overrides;
 use crate::shell::Shell;
 use crate::shell::ShellType;
+use crate::test_support::construct_model_info_offline;
 use crate::tools::ToolRouter;
 use crate::tools::router::ToolRouterParams;
 use codex_app_server_protocol::AppInfo;
@@ -94,7 +95,7 @@ fn discoverable_connector(id: &str, name: &str, description: &str) -> Discoverab
 fn search_capable_model_info() -> ModelInfo {
     let config = test_config();
     let mut model_info =
-        ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+        construct_model_info_offline("gpt-5-codex", &config);
     model_info.supports_search_tool = true;
     model_info
 }
@@ -395,7 +396,7 @@ fn test_full_toolset_specs_for_gpt5_codex_unified_exec_web_search() {
 #[test]
 fn test_build_specs_collab_tools_enabled() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::Collab);
     let available_models = Vec::new();
@@ -436,7 +437,7 @@ fn test_build_specs_collab_tools_enabled() {
 #[test]
 fn test_build_specs_multi_agent_v2_uses_task_names_and_hides_resume() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::Collab);
     features.enable(Feature::MultiAgentV2);
@@ -605,7 +606,7 @@ fn test_build_specs_multi_agent_v2_uses_task_names_and_hides_resume() {
 #[test]
 fn test_build_specs_enable_fanout_enables_agent_jobs_and_collab_tools() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::SpawnCsv);
     features.normalize_dependencies();
@@ -642,7 +643,7 @@ fn test_build_specs_enable_fanout_enables_agent_jobs_and_collab_tools() {
 fn view_image_tool_omits_detail_without_original_detail_feature() {
     let config = test_config();
     let mut model_info =
-        ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+        construct_model_info_offline("gpt-5-codex", &config);
     model_info.supports_image_detail_original = true;
     let features = Features::with_defaults();
     let available_models = Vec::new();
@@ -676,7 +677,7 @@ fn view_image_tool_omits_detail_without_original_detail_feature() {
 fn view_image_tool_includes_detail_with_original_detail_feature() {
     let config = test_config();
     let mut model_info =
-        ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+        construct_model_info_offline("gpt-5-codex", &config);
     model_info.supports_image_detail_original = true;
     let mut features = Features::with_defaults();
     features.enable(Feature::ImageDetailOriginal);
@@ -718,7 +719,7 @@ fn view_image_tool_includes_detail_with_original_detail_feature() {
 #[test]
 fn test_build_specs_agent_job_worker_tools_enabled() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::SpawnCsv);
     features.normalize_dependencies();
@@ -760,7 +761,7 @@ fn test_build_specs_agent_job_worker_tools_enabled() {
 #[test]
 fn request_user_input_description_reflects_default_mode_feature_flag() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     let available_models = Vec::new();
     let tools_config = ToolsConfig::new(&ToolsConfigParams {
@@ -813,7 +814,7 @@ fn request_user_input_description_reflects_default_mode_feature_flag() {
 #[test]
 fn request_permissions_requires_feature_flag() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let features = Features::with_defaults();
     let available_models = Vec::new();
     let tools_config = ToolsConfig::new(&ToolsConfigParams {
@@ -863,7 +864,7 @@ fn request_permissions_requires_feature_flag() {
 #[test]
 fn request_permissions_tool_is_independent_from_additional_permissions() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::ExecPermissionApprovals);
     let available_models = Vec::new();
@@ -890,7 +891,7 @@ fn request_permissions_tool_is_independent_from_additional_permissions() {
 #[test]
 fn get_memory_requires_feature_flag() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.disable(Feature::MemoryTool);
     let available_models = Vec::new();
@@ -919,7 +920,7 @@ fn get_memory_requires_feature_flag() {
 #[test]
 fn js_repl_requires_feature_flag() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let features = Features::with_defaults();
 
     let available_models = Vec::new();
@@ -953,7 +954,7 @@ fn js_repl_requires_feature_flag() {
 #[test]
 fn js_repl_enabled_adds_tools() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::JsRepl);
 
@@ -981,7 +982,7 @@ fn js_repl_enabled_adds_tools() {
 fn image_generation_tools_require_feature_and_supported_model() {
     let config = test_config();
     let mut supported_model_info =
-        ModelsManager::construct_model_info_offline_for_tests("gpt-5.2", &config);
+        construct_model_info_offline("gpt-5.2", &config);
     supported_model_info.slug = "custom/gpt-5.2-variant".to_string();
     let mut unsupported_model_info = supported_model_info.clone();
     unsupported_model_info.input_modalities = vec![InputModality::Text];
@@ -1117,7 +1118,7 @@ fn assert_default_model_tools(
 #[test]
 fn web_search_mode_cached_sets_external_web_access_false() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let features = Features::with_defaults();
 
     let available_models = Vec::new();
@@ -1154,7 +1155,7 @@ fn web_search_mode_cached_sets_external_web_access_false() {
 #[test]
 fn web_search_mode_live_sets_external_web_access_true() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let features = Features::with_defaults();
 
     let available_models = Vec::new();
@@ -1191,7 +1192,7 @@ fn web_search_mode_live_sets_external_web_access_true() {
 #[test]
 fn web_search_config_is_forwarded_to_tool_spec() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let features = Features::with_defaults();
     let web_search_config = WebSearchConfig {
         filters: Some(codex_protocol::config_types::WebSearchFilters {
@@ -1247,7 +1248,7 @@ fn web_search_config_is_forwarded_to_tool_spec() {
 fn web_search_tool_type_text_and_image_sets_search_content_types() {
     let config = test_config();
     let mut model_info =
-        ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+        construct_model_info_offline("gpt-5-codex", &config);
     model_info.web_search_tool_type = WebSearchToolType::TextAndImage;
     let features = Features::with_defaults();
 
@@ -1290,7 +1291,7 @@ fn web_search_tool_type_text_and_image_sets_search_content_types() {
 #[test]
 fn mcp_resource_tools_are_hidden_without_mcp_servers() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let features = Features::with_defaults();
     let available_models = Vec::new();
     let tools_config = ToolsConfig::new(&ToolsConfigParams {
@@ -1322,7 +1323,7 @@ fn mcp_resource_tools_are_hidden_without_mcp_servers() {
 #[test]
 fn mcp_resource_tools_are_included_when_mcp_servers_are_present() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let features = Features::with_defaults();
     let available_models = Vec::new();
     let tools_config = ToolsConfig::new(&ToolsConfigParams {
@@ -1567,7 +1568,7 @@ fn test_gpt_5_1_codex_max_unified_exec_web_search() {
 #[test]
 fn test_build_specs_default_shell_present() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("o3", &config);
+    let model_info = construct_model_info_offline("o3", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     let available_models = Vec::new();
@@ -1599,7 +1600,7 @@ fn test_build_specs_default_shell_present() {
 #[test]
 fn shell_zsh_fork_prefers_shell_command_over_unified_exec() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("o3", &config);
+    let model_info = construct_model_info_offline("o3", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     features.enable(Feature::ShellZshFork);
@@ -1663,7 +1664,7 @@ fn shell_zsh_fork_prefers_shell_command_over_unified_exec() {
 #[ignore]
 fn test_parallel_support_flags() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     let available_models = Vec::new();
@@ -1718,7 +1719,7 @@ fn test_test_model_info_includes_sync_tool() {
 #[test]
 fn test_build_specs_mcp_tools_converted() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("o3", &config);
+    let model_info = construct_model_info_offline("o3", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     let available_models = Vec::new();
@@ -1811,7 +1812,7 @@ fn test_build_specs_mcp_tools_converted() {
 #[test]
 fn test_build_specs_mcp_tools_sorted_by_name() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("o3", &config);
+    let model_info = construct_model_info_offline("o3", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     let available_models = Vec::new();
@@ -2446,7 +2447,7 @@ fn tool_suggest_description_lists_discoverable_tools() {
 #[test]
 fn test_mcp_tool_property_missing_type_defaults_to_string() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     let available_models = Vec::new();
@@ -2506,7 +2507,7 @@ fn test_mcp_tool_property_missing_type_defaults_to_string() {
 #[test]
 fn test_mcp_tool_integer_normalized_to_number() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     let available_models = Vec::new();
@@ -2562,7 +2563,7 @@ fn test_mcp_tool_integer_normalized_to_number() {
 #[test]
 fn test_mcp_tool_array_without_items_gets_default_string_items() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     features.enable(Feature::ApplyPatchFreeform);
@@ -2622,7 +2623,7 @@ fn test_mcp_tool_array_without_items_gets_default_string_items() {
 #[test]
 fn test_mcp_tool_anyof_defaults_to_string() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     let available_models = Vec::new();
@@ -2680,7 +2681,7 @@ fn test_mcp_tool_anyof_defaults_to_string() {
 #[test]
 fn test_get_openai_tools_mcp_tools_with_additional_properties_schema() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::UnifiedExec);
     let available_models = Vec::new();
@@ -2790,7 +2791,7 @@ fn test_get_openai_tools_mcp_tools_with_additional_properties_schema() {
 #[test]
 fn code_mode_augments_builtin_tool_descriptions_with_typed_sample() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::CodeMode);
     features.enable(Feature::UnifiedExec);
@@ -2827,7 +2828,7 @@ fn code_mode_augments_builtin_tool_descriptions_with_typed_sample() {
 #[test]
 fn code_mode_augments_mcp_tool_descriptions_with_namespaced_sample() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::CodeMode);
     features.enable(Feature::UnifiedExec);
@@ -2893,7 +2894,7 @@ fn code_mode_only_restricts_model_tools_to_exec_tools() {
 #[test]
 fn code_mode_only_exec_description_includes_full_nested_tool_details() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::CodeMode);
     features.enable(Feature::CodeModeOnly);
@@ -2932,7 +2933,7 @@ fn code_mode_only_exec_description_includes_full_nested_tool_details() {
 #[test]
 fn code_mode_exec_description_omits_nested_tool_details_when_not_code_mode_only() {
     let config = test_config();
-    let model_info = ModelsManager::construct_model_info_offline_for_tests("gpt-5-codex", &config);
+    let model_info = construct_model_info_offline("gpt-5-codex", &config);
     let mut features = Features::with_defaults();
     features.enable(Feature::CodeMode);
     let available_models = Vec::new();

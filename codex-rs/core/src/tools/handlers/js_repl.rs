@@ -4,8 +4,6 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
 
-use crate::exec::ExecToolCallOutput;
-use crate::exec::StreamOutput;
 use crate::function_tool::FunctionCallError;
 use crate::protocol::ExecCommandSource;
 use crate::tools::context::FunctionToolOutput;
@@ -21,6 +19,8 @@ use crate::tools::js_repl::JsReplArgs;
 use crate::tools::registry::ToolHandler;
 use crate::tools::registry::ToolKind;
 use codex_features::Feature;
+use codex_protocol::exec_output::ExecToolCallOutput;
+use codex_protocol::exec_output::StreamOutput;
 use codex_protocol::models::FunctionCallOutputContentItem;
 
 pub struct JsReplHandler;

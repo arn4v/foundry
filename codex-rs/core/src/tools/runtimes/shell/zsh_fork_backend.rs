@@ -1,5 +1,4 @@
 use super::ShellRequest;
-use crate::exec::ExecToolCallOutput;
 use crate::sandboxing::ExecRequest;
 use crate::tools::runtimes::unified_exec::UnifiedExecRequest;
 use crate::tools::sandboxing::SandboxAttempt;
@@ -7,6 +6,7 @@ use crate::tools::sandboxing::ToolCtx;
 use crate::tools::sandboxing::ToolError;
 use crate::tools::spec::ZshForkConfig;
 use crate::unified_exec::SpawnLifecycleHandle;
+use codex_protocol::exec_output::ExecToolCallOutput;
 
 pub(crate) struct PreparedUnifiedExecSpawn {
     pub(crate) exec_request: ExecRequest,

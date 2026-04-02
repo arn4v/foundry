@@ -12,10 +12,10 @@ pub mod runtimes;
 pub mod sandboxing;
 pub mod spec;
 
-use crate::exec::ExecToolCallOutput;
 use codex_utils_output_truncation::TruncationPolicy;
 use codex_utils_output_truncation::formatted_truncate_text;
 use codex_utils_output_truncation::truncate_text;
+use codex_protocol::exec_output::ExecToolCallOutput;
 pub use router::ToolRouter;
 use serde::Serialize;
 

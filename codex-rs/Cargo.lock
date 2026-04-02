@@ -1781,6 +1781,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "codex-collaboration-mode-templates"
+version = "0.0.0"
+
+[[package]]
 name = "codex-config"
 version = "0.0.0"
 dependencies = [
@@ -1844,15 +1848,18 @@ dependencies = [
  "codex-exec-server",
  "codex-execpolicy",
  "codex-features",
+ "codex-feedback",
  "codex-git-utils",
  "codex-hooks",
  "codex-instructions",
  "codex-login",
  "codex-mcp",
+ "codex-models-manager",
  "codex-network-proxy",
  "codex-otel",
  "codex-plugin",
  "codex-protocol",
+ "codex-response-debug-context",
  "codex-rmcp-client",
  "codex-rollout",
  "codex-sandboxing",
@@ -2110,6 +2117,7 @@ name = "codex-feedback"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "codex-login",
  "codex-protocol",
  "pretty_assertions",
  "sentry",
@@ -2230,14 +2238,17 @@ dependencies = [
  "async-trait",
  "base64 0.22.1",
  "chrono",
+ "codex-api",
  "codex-app-server-protocol",
  "codex-client",
  "codex-config",
  "codex-keyring-store",
+ "codex-otel",
  "codex-protocol",
  "codex-terminal-detection",
  "codex-utils-template",
  "core_test_support",
+ "http 1.4.0",
  "keyring",
  "once_cell",
  "os_info",
@@ -2312,6 +2323,35 @@ dependencies = [
  "serde",
  "serde_json",
  "shlex",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "wiremock",
+]
+
+[[package]]
+name = "codex-models-manager"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "base64 0.22.1",
+ "chrono",
+ "codex-api",
+ "codex-collaboration-mode-templates",
+ "codex-features",
+ "codex-feedback",
+ "codex-login",
+ "codex-otel",
+ "codex-protocol",
+ "codex-response-debug-context",
+ "codex-utils-output-truncation",
+ "codex-utils-template",
+ "core_test_support",
+ "http 1.4.0",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
  "tempfile",
  "tokio",
  "tracing",
@@ -2422,8 +2462,11 @@ name = "codex-protocol"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "chrono",
+ "codex-async-utils",
  "codex-execpolicy",
  "codex-git-utils",
+ "codex-network-proxy",
  "codex-utils-absolute-path",
  "codex-utils-image",
  "codex-utils-string",
@@ -2433,6 +2476,7 @@ dependencies = [
  "icu_provider",
  "pretty_assertions",
  "quick-xml",
+ "reqwest",
  "schemars 0.8.22",
  "serde",
  "serde_json",
@@ -2441,9 +2485,22 @@ dependencies = [
  "strum_macros 0.28.0",
  "sys-locale",
  "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
  "tracing",
  "ts-rs",
  "uuid",
+]
+
+[[package]]
+name = "codex-response-debug-context"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "codex-api",
+ "http 1.4.0",
+ "pretty_assertions",
+ "serde_json",
 ]
 
 [[package]]
