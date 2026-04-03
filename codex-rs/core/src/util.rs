@@ -234,6 +234,8 @@ pub fn normalize_thread_name(name: &str) -> Option<String> {
     }
 }
 
+pub const CLI_COMMAND_NAME: &str = "foundry";
+
 pub fn resume_command(thread_name: Option<&str>, thread_id: Option<ThreadId>) -> Option<String> {
     let resume_target = thread_name
         .filter(|name| !name.is_empty())
@@ -243,9 +245,9 @@ pub fn resume_command(thread_name: Option<&str>, thread_id: Option<ThreadId>) ->
         let needs_double_dash = target.starts_with('-');
         let escaped = shlex_join(&[target]);
         if needs_double_dash {
-            format!("codex resume -- {escaped}")
+            format!("{CLI_COMMAND_NAME} resume -- {escaped}")
         } else {
-            format!("codex resume {escaped}")
+            format!("{CLI_COMMAND_NAME} resume {escaped}")
         }
     })
 }

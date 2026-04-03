@@ -71,7 +71,7 @@ impl ApplyPatchRuntime {
     ) -> Result<SandboxCommand, ToolError> {
         Ok(Self::build_sandbox_command_with_program(
             req,
-            codex_windows_sandbox::resolve_current_exe_for_launch(codex_home, "codex.exe"),
+            codex_windows_sandbox::resolve_current_exe_for_launch(codex_home, "foundry.exe"),
         ))
     }
 
